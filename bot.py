@@ -21,7 +21,7 @@ dp = Dispatcher()
 scheduler = AsyncIOScheduler()
 
 # ВАЖНО: замените на ваш chat_id
-MY_CHAT_ID = 0  # ← ВСТАВЬТЕ СВОЙ TELEGRAM USER ID СЮДА
+MY_CHAT_ID = 396041420
 
 
 def format_signal(s: dict) -> str:
