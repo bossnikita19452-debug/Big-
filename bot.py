@@ -63,7 +63,9 @@ async def send_signals():
         logger.error(f"Ошибка сканирования: {e}")
 
 
-@dp.message(handlers=["start"])
+from aiogram.filters import Command
+
+@dp.message(Command("start"))
 async def cmd_start(message):
     await message.answer(
         "🤖 <b>BingX Long Scanner</b>\n\n"
