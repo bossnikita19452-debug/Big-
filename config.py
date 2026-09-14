@@ -13,7 +13,7 @@ BINGX_BASE_URL = "https://open-api.bingx.com"
 
 # Параметры сканирования
 SCAN_INTERVAL_HOURS = 1
-MIN_VOLUME_USDT = 5_000_000  # Минимальный объём за 24ч (в USDT)
+MIN_VOLUME_USDT = 100_000  # Минимальный объём за 24ч (в USDT)
 MAX_SIGNALS_PER_HOUR = 20   # Лимит сообщений, чтобы не спамить
 
 # Условия для сигналов
