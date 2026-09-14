@@ -26,7 +26,6 @@ def _sign(params: str) -> str:
 async def fetch_signed(session: aiohttp.ClientSession, endpoint: str, params: dict) -> dict:
     """Выполнить подписанный GET-запрос к BingX."""
     params["timestamp"] = int(time.time() * 1000)
-    # Сортировка параметров для подписи
     sorted_params = "&".join(f"{k}={v}" for k, v in sorted(params.items()) if v is not None)
     signature = _sign(sorted_params)
     url = f"{BINGX_BASE_URL}{endpoint}?{sorted_params}&signature={signature}"
@@ -90,9 +89,9 @@ def check_scalp(df_5m: pd.DataFrame, df_15m: pd.DataFrame) -> dict | None:
     if met < 1:
         return None
 
-    if met == 2:
+    if met == 4:
         level = "🟢"
-    elif met == 2:
+    elif met == 3:
         level = "🟡"
     else:
         level = "🔴"
@@ -137,7 +136,12 @@ def check_swing(df_1h: pd.DataFrame, df_4h: pd.DataFrame) -> dict | None:
     if met < 1:
         return None
 
-    level = "🟢" if met == 2 else ("🟡" if met == 2 else "🔴")
+    if met == 4:
+        level = "🟢"
+    elif met == 3:
+        level = "🟡"
+    else:
+        level = "🔴"
 
     return {
         "type": "Среднесрок (до 3 дней)",
@@ -175,7 +179,12 @@ def check_longterm(df_1d: pd.DataFrame) -> dict | None:
     if met < 1:
         return None
 
-    level = "🟢" if met == 2 else ("🟡" if met == 2 else "🔴")
+    if met == 3:
+        level = "🟢"
+    elif met == 2:
+        level = "🟡"
+    else:
+        level = "🔴"
 
     return {
         "type": "Долгосрок (до месяца)",
@@ -202,7 +211,6 @@ async def scan_all() -> list[dict]:
 
         for symbol in symbols:
             try:
-                # Загружаем свечи для нужных таймфреймов
                 df_5m = await get_klines(session, symbol, "5m", 100)
                 df_15m = await get_klines(session, symbol, "15m", 100)
                 df_1h = await get_klines(session, symbol, "1h", 250)
@@ -212,12 +220,11 @@ async def scan_all() -> list[dict]:
                 if df_5m.empty or df_1h.empty or df_1d.empty:
                     continue
 
-                # Проверяем минимальный объём
+                # Проверяем минимальный объём (сейчас $10 000 — для теста)
                 volume_24h = df_1h["volume"].tail(24).sum() * df_1h["close"].iloc[-1]
                 if volume_24h < MIN_VOLUME_USDT:
                     continue
 
-                # Проверяем все три типа
                 for check in [
                     check_scalp(df_5m, df_15m),
                     check_swing(df_1h, df_4h),
@@ -228,11 +235,9 @@ async def scan_all() -> list[dict]:
                         signals.append(check)
 
             except Exception as e:
-                # Логируем ошибку, но продолжаем сканирование
                 print(f"Error scanning {symbol}: {e}")
                 continue
 
-    # Сортируем по силе сигнала (сначала 🟢)
     level_order = {"🟢": 0, "🟡": 1, "🔴": 2}
     signals.sort(key=lambda s: level_order.get(s["level"], 3))
     return signals
