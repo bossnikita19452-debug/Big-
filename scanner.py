@@ -87,12 +87,12 @@ def check_scalp(df_5m: pd.DataFrame, df_15m: pd.DataFrame) -> dict | None:
     ]
     met = sum(conditions)
 
-    if met < 2:
+    if met < 1:
         return None
 
-    if met == 4:
+    if met == 2:
         level = "🟢"
-    elif met == 3:
+    elif met == 2:
         level = "🟡"
     else:
         level = "🔴"
@@ -134,10 +134,10 @@ def check_swing(df_1h: pd.DataFrame, df_4h: pd.DataFrame) -> dict | None:
     ]
     met = sum(conditions)
 
-    if met < 2:
+    if met < 1:
         return None
 
-    level = "🟢" if met == 4 else ("🟡" if met == 3 else "🔴")
+    level = "🟢" if met == 2 else ("🟡" if met == 2 else "🔴")
 
     return {
         "type": "Среднесрок (до 3 дней)",
@@ -172,10 +172,10 @@ def check_longterm(df_1d: pd.DataFrame) -> dict | None:
     ]
     met = sum(conditions)
 
-    if met < 2:
+    if met < 1:
         return None
 
-    level = "🟢" if met == 3 else ("🟡" if met == 2 else "🔴")
+    level = "🟢" if met == 2 else ("🟡" if met == 2 else "🔴")
 
     return {
         "type": "Долгосрок (до месяца)",
